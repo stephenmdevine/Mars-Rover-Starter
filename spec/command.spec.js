@@ -10,13 +10,13 @@ describe("Command class", function() {
   });
   
   test("constructor sets command type", () => {
-    let expected = new Command(" ");
-    expect(expected.commandType).toEqual(" ");
+    let received = new Command(" ");
+    expect(received.commandType).toEqual(" ");
   });
 
   test("constructor sets a value passed in as the 2nd argument", () => {
-    let expected = new Command(" ", 0);
-    expect(expected.value).toEqual(0);
+    let received = new Command(" ", 0);
+    expect(received.value).toEqual(0);
   });
 
 });
