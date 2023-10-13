@@ -10,23 +10,32 @@ class Rover {
    }
 
    receiveMessage(message) {
+      let sentCommands = message.commands;
       let responseCommands = [];
-      for (let i = 0; i < message.commands.length; i++) {
-         const trueCondition = (message.commands[i].commandType === "STATUS_CHECK");
-         let completedTruth = true;
-         if (message.commands[i].commandType === "MODE_CHANGE") {
-            completedTruth = (message.commands[i].value === "NORMAL" || message.commands[i].value === "LOW_POWER");
-            this.mode = message.commands[i].value;
-         }  else if (message.commands[i].commandType === "MOVE") {
-            if (this.mode === "NORMAL") {
-               this.position = message.commands[i].value;
+      if (!Array.isArray(sentCommands)) {
+         sentCommands = [sentCommands];   // Makes sure Commmands are in array form
+      }
+      for (let i = 0; i < sentCommands.length; i++) {
+         let completedBoolean = true;
+         let statusBoolean = sentCommands[i].commandType === "STATUS_CHECK";
+         let currentStatus = {};
+         if (sentCommands[i].commandType === "MODE_CHANGE") {
+            completedBoolean = (sentCommands[i].value === "NORMAL" || sentCommands[i].value === "LOW_POWER");
+            this.mode = sentCommands[i].value;
+         }  else if (sentCommands[i].commandType === "MOVE") {
+            completedBoolean = (this.mode === "NORMAL");
+            if (completedBoolean) {
+               this.position = sentCommands[i].value;
             }
-            completedTruth = (this.mode === "NORMAL");
+         }  else if (sentCommands[i].commandType === "STATUS_CHECK") {
+            currentStatus = {"mode": this.mode, "generatorWatts": this.generatorWatts, "position": this.position};
+            completedBoolean = statusBoolean;
+         }  else {
+            completedBoolean = false;
          }
-         let currentStatus = {"mode": this.mode, "generatorWatts": this.generatorWatts, "position": this.position};
          let input = {
-            "completed": completedTruth,
-            ...(trueCondition && {roverStatus: currentStatus})
+            "completed": completedBoolean,
+            ...(statusBoolean && {"roverStatus": currentStatus})
          };
          responseCommands.push(input);
       }
@@ -34,7 +43,6 @@ class Rover {
          "message": message.name,
          "results": responseCommands
       };
-      console.log(response.results);
       return response;
    }
 }
