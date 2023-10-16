@@ -15,8 +15,9 @@ class Rover {
       if (!Array.isArray(sentCommands)) {
          sentCommands = [sentCommands];   // Makes sure Commmands are in array form
       }
+      // Loops through the array of commands sent to the rover and applies changes if one of the three command types is issued
       for (let i = 0; i < sentCommands.length; i++) {
-         let completedBoolean = true;
+         let completedBoolean = true;     // Variable for the 'completed' key in the rover's response
          let statusBoolean = sentCommands[i].commandType === "STATUS_CHECK";
          let currentStatus = {};
          if (sentCommands[i].commandType === "MODE_CHANGE") {
@@ -31,11 +32,11 @@ class Rover {
             currentStatus = {"mode": this.mode, "generatorWatts": this.generatorWatts, "position": this.position};
             completedBoolean = statusBoolean;
          }  else {
-            completedBoolean = false;
+            completedBoolean = false; // Indicates a command is not completed if one of the three command types isn't issued
          }
          let input = {
             "completed": completedBoolean,
-            ...(statusBoolean && {"roverStatus": currentStatus})
+            ...(statusBoolean && {"roverStatus": currentStatus})  // If applicable, adds 'Status Check' to the rover's results' response
          };
          responseCommands.push(input);
       }
